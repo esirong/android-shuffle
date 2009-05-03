@@ -48,7 +48,7 @@ public class ShuffleProvider extends ContentProvider {
     private static final String cTag = "ShuffleProvider";
 
     public static final String cDatabaseName = "shuffle.db";
-    private static final int cDatabaseVersion = 10;
+    private static final int cDatabaseVersion = 11;
     
     static final String cTaskTableName = "task";
     static final String cProjectTableName = "project";
@@ -93,20 +93,32 @@ public class ShuffleProvider extends ContentProvider {
         
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        	if (oldVersion == 9) {
-        		db.execSQL("ALTER TABLE " + cContextTableName + " RENAME TO contextOld");
-        		createContextTable(db);
-        		db.execSQL("INSERT INTO " + cContextTableName + " (_id,name,colour)" +
-        				" SELECT _id,name,colour FROM contextOld");
-        		db.execSQL("DROP TABLE contextOld");
-        	} else {
-	            Log.w(cTag, "Upgrading database from version " + oldVersion + " to "
-	                    + newVersion + ", which will destroy all old data");
-	            db.execSQL("DROP TABLE IF EXISTS " + cContextTableName);
-	            db.execSQL("DROP TABLE IF EXISTS " + cProjectTableName);
-	            db.execSQL("DROP TABLE IF EXISTS " + cTaskTableName);
-	            onCreate(db);
-        	}
+			Log.i(cTag, "Upgrading database from version " + oldVersion
+					+ " to " + newVersion);
+			switch (oldVersion) {
+			case 9:
+				db.execSQL("ALTER TABLE " + cContextTableName
+						+ " RENAME TO contextOld");
+				createContextTable(db);
+				db.execSQL("INSERT INTO " + cContextTableName
+						+ " (_id,name,colour)"
+						+ " SELECT _id,name,colour FROM contextOld");
+				db.execSQL("DROP TABLE contextOld");
+				// no break since we want it to fall through
+
+			case 10: // Shuffle v1.1 (1st release)
+				createTaskProjectIdIndex(db);
+				createTaskContextIdIndex(db);
+				break;
+
+			default: // unknown version - use destructive upgrade
+				Log.w(cTag, "Destroying all old data");
+				db.execSQL("DROP TABLE IF EXISTS " + cContextTableName);
+				db.execSQL("DROP TABLE IF EXISTS " + cProjectTableName);
+				db.execSQL("DROP TABLE IF EXISTS " + cTaskTableName);
+				onCreate(db);
+				break;
+			}
         }
 
         private void createContextTable(SQLiteDatabase db) {
@@ -140,6 +152,17 @@ public class ShuffleProvider extends ContentProvider {
                     + "complete INTEGER"
                     + ");");
         }    
+        
+        private void createTaskProjectIdIndex(SQLiteDatabase db) {
+        	db.execSQL("CREATE INDEX taskProjectIdIndex ON " + cTaskTableName
+        			+ " (" + Shuffle.Tasks.PROJECT_ID + ");");
+        }
+        	     
+        private void createTaskContextIdIndex(SQLiteDatabase db) {
+        	db.execSQL("CREATE INDEX taskContextIdIndex ON " + cTaskTableName
+        			+ " (" + Shuffle.Tasks.CONTEXT_ID + ");");
+        }
+        
     }
     
     private DatabaseHelper mOpenHelper;

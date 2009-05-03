@@ -59,7 +59,8 @@ public class ProjectTasksActivity extends AbstractTaskListActivity {
 				Shuffle.Tasks.cExpandedProjection,
 				Shuffle.Tasks.PROJECT_ID + " = ?", 
 				new String[] {String.valueOf(mProjectId)}, 
-				Shuffle.Tasks.DISPLAY_ORDER + " ASC");
+				Shuffle.Tasks.DUE_DATE + " ASC," + Shuffle.Tasks.DISPLAY_ORDER + " ASC");
+
 	}
 
 	@Override
