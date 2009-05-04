@@ -89,6 +89,8 @@ public class ShuffleProvider extends ContentProvider {
         	createContextTable(db);
         	createProjectTable(db);
         	createTaskTable(db);
+			createTaskProjectIdIndex(db);
+			createTaskContextIdIndex(db);
         }
         
         @Override
