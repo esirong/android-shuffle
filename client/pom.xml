@@ -29,15 +29,22 @@
 			<artifactId>roboguice</artifactId>
 			<version>1.0</version>
 		</dependency>
-		<dependency>
+		<!--  <dependency>
 			<groupId>com.google.code.guice</groupId>
 			<artifactId>guice</artifactId>
 			<version>2.0.1</version>
-		</dependency>
+		</dependency>  -->
 		<dependency>
 			<groupId>org.dodgybits</groupId>
 			<artifactId>android-shuffle-dto</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.flurry</groupId>
+			<artifactId>flurry-agent</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/FlurryAgent.jar</systemPath>
 		</dependency>
 	</dependencies>
 
